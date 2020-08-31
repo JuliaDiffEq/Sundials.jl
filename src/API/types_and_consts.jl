@@ -2,11 +2,7 @@
 
 ############################# Manual Additions by jd-lara##################################
 
-@static if Int == Int64
-    const sunindextype = Int64
-else
-    const sunindextype = Int32
-end
+const sunindextype = Int32
 
 # begin enum ANONYMOUS_1
 const ANONYMOUS_1 = UInt32
@@ -25,6 +21,9 @@ const CLASSICAL_GS = (UInt32)(2)
 ##########################################################################################
 const ARK_NORMAL = Cint(1)
 const ARK_ONE_STEP = Cint(2)
+const ARK_INTERP_MAX_DEGREE = Cint(5)
+const ARK_INTERP_HERMITE = Cint(0)
+const ARK_INTERP_LAGRANGE = Cint(1)
 const ARK_SUCCESS = Cint(0)
 const ARK_TSTOP_RETURN = Cint(1)
 const ARK_ROOT_RETURN = Cint(2)
@@ -56,17 +55,20 @@ const ARK_BAD_K = Cint(-24)
 const ARK_BAD_T = Cint(-25)
 const ARK_BAD_DKY = Cint(-26)
 const ARK_TOO_CLOSE = Cint(-27)
-const ARK_POSTPROCESS_FAIL = Cint(-28)
-const ARK_VECTOROP_ERR = Cint(-29)
-const ARK_NLS_INIT_FAIL = Cint(-30)
-const ARK_NLS_SETUP_FAIL = Cint(-31)
-const ARK_NLS_SETUP_RECVR = Cint(-32)
-const ARK_NLS_OP_ERR = Cint(-33)
-const ARK_INNERSTEP_ATTACH_ERR = Cint(-34)
-const ARK_INNERSTEP_FAIL = Cint(-35)
-const ARK_OUTERTOINNER_FAIL = Cint(-36)
-const ARK_INNERTOOUTER_FAIL = Cint(-37)
-const ARK_USER_PREDICT_FAIL = Cint(-38)
+const ARK_VECTOROP_ERR = Cint(-28)
+const ARK_NLS_INIT_FAIL = Cint(-29)
+const ARK_NLS_SETUP_FAIL = Cint(-30)
+const ARK_NLS_SETUP_RECVR = Cint(-31)
+const ARK_NLS_OP_ERR = Cint(-32)
+const ARK_INNERSTEP_ATTACH_ERR = Cint(-33)
+const ARK_INNERSTEP_FAIL = Cint(-34)
+const ARK_OUTERTOINNER_FAIL = Cint(-35)
+const ARK_INNERTOOUTER_FAIL = Cint(-36)
+const ARK_POSTPROCESS_FAIL = Cint(-37)
+const ARK_POSTPROCESS_STEP_FAIL = Cint(-37)
+const ARK_POSTPROCESS_STAGE_FAIL = Cint(-38)
+const ARK_USER_PREDICT_FAIL = Cint(-39)
+const ARK_INTERP_FAIL = Cint(-40)
 const ARK_UNRECOGNIZED_ERROR = Cint(-99)
 const ARKRhsFn = Ptr{Cvoid}
 const ARKRootFn = Ptr{Cvoid}
@@ -76,8 +78,8 @@ const ARKErrHandlerFn = Ptr{Cvoid}
 const ARKAdaptFn = Ptr{Cvoid}
 const ARKExpStabFn = Ptr{Cvoid}
 const ARKVecResizeFn = Ptr{Cvoid}
+const ARKPostProcessFn = Ptr{Cvoid}
 const ARKPostProcessStepFn = Ptr{Cvoid}
-const ARKPostProcessFn = Ptr{Cvoid} #manually added
 const HEUN_EULER_2_1_2 = Cint(0)
 const DEFAULT_ERK_2 = HEUN_EULER_2_1_2
 const BOGACKI_SHAMPINE_4_2_3 = Cint(1)
@@ -169,7 +171,7 @@ const ARKLsMassPrecSetupFn = Ptr{Cvoid}
 const ARKLsMassPrecSolveFn = Ptr{Cvoid}
 const DEFAULT_MRI_TABLE_3 = KNOTH_WOLKE_3_3
 
-CEnum.@cenum MRISTEP_ID::UInt32 begin
+@cenum MRISTEP_ID::UInt32 begin
     MRISTEP_ARKSTEP = 0
 end
 
@@ -209,11 +211,15 @@ const CV_BAD_T = Cint(-25)
 const CV_BAD_DKY = Cint(-26)
 const CV_TOO_CLOSE = Cint(-27)
 const CV_VECTOROP_ERR = Cint(-28)
+const CV_PROJ_MEM_NULL = Cint(-29)
+const CV_PROJFUNC_FAIL = Cint(-30)
+const CV_REPTD_PROJFUNC_ERR = Cint(-31)
 const CV_UNRECOGNIZED_ERR = Cint(-99)
 const CVRhsFn = Ptr{Cvoid}
 const CVRootFn = Ptr{Cvoid}
 const CVEwtFn = Ptr{Cvoid}
 const CVErrHandlerFn = Ptr{Cvoid}
+const CVMonitorFn = Ptr{Cvoid}
 const CVLocalFn = Ptr{Cvoid}
 const CVCommFn = Ptr{Cvoid}
 const CVDIAG_SUCCESS = Cint(0)
@@ -241,6 +247,7 @@ const CVLsPrecSolveFn = Ptr{Cvoid}
 const CVLsJacTimesSetupFn = Ptr{Cvoid}
 const CVLsJacTimesVecFn = Ptr{Cvoid}
 const CVLsLinSysFn = Ptr{Cvoid}
+const CVProjFn = Ptr{Cvoid}
 const CVSpilsPrecSetupFn = CVLsPrecSetupFn
 const CVSpilsPrecSolveFn = CVLsPrecSolveFn
 const CVSpilsJacTimesSetupFn = CVLsJacTimesSetupFn
@@ -501,7 +508,6 @@ const KINLsJacTimesVecFn = Ptr{Cvoid}
 const KINSpilsPrecSetupFn = KINLsPrecSetupFn
 const KINSpilsPrecSolveFn = KINLsPrecSolveFn
 const KINSpilsJacTimesVecFn = KINLsJacTimesVecFn
-#const sunindextype = Int64
 
 struct _generic_N_Vector_Ops
     nvgetvectorid::Ptr{Cvoid}
@@ -551,6 +557,8 @@ struct _generic_N_Vector_Ops
     nvminquotientlocal::Ptr{Cvoid}
     nvwsqrsumlocal::Ptr{Cvoid}
     nvwsqrsummasklocal::Ptr{Cvoid}
+    nvprint::Ptr{Cvoid}
+    nvprintfile::Ptr{Cvoid}
 end
 
 const N_Vector_Ops = Ptr{_generic_N_Vector_Ops}
@@ -584,19 +592,21 @@ struct _N_VectorContent_Serial
 end
 
 const N_VectorContent_Serial = Ptr{_N_VectorContent_Serial}
-const SUNDIALS_VERSION = "5.1.0"
+const SUNDIALS_VERSION = "5.3.0"
 const SUNDIALS_VERSION_MAJOR = Cint(5)
-const SUNDIALS_VERSION_MINOR = Cint(1)
+const SUNDIALS_VERSION_MINOR = Cint(3)
 const SUNDIALS_VERSION_PATCH = Cint(0)
 const SUNDIALS_VERSION_LABEL = ""
 
-# Skipping MacroDefinition: SUNDIALS_F77_FUNC ( name , NAME ) name ## _64_
-# Skipping MacroDefinition: SUNDIALS_F77_FUNC_ ( name , NAME ) name ## _64_
+# Skipping MacroDefinition: SUNDIALS_F77_FUNC ( name , NAME ) name ## _
+# Skipping MacroDefinition: SUNDIALS_F77_FUNC_ ( name , NAME ) name ## _
 
 const SUNDIALS_DOUBLE_PRECISION = Cint(1)
-const SUNDIALS_INT64_T = Cint(1)
-#const SUNDIALS_INDEX_TYPE = int64_t
+const SUNDIALS_INT32_T = Cint(1)
+const SUNDIALS_INDEX_TYPE = int32_t
+const SUNDIALS_SUPERLUMT_THREAD_TYPE = "OPENMP"
 const SUNDIALS_MPI_COMM_F2C = Cint(0)
+const SUNDIALS_DEPRECATED = SUNDIALS_EXPORT
 const SUNDIALS_DENSE = Cint(1)
 const SUNDIALS_BAND = Cint(2)
 
@@ -661,13 +671,15 @@ const SUNLS_SUCCESS = Cint(0)
 const SUNLS_MEM_NULL = Cint(-801)
 const SUNLS_ILL_INPUT = Cint(-802)
 const SUNLS_MEM_FAIL = Cint(-803)
-const SUNLS_ATIMES_FAIL_UNREC = Cint(-804)
-const SUNLS_PSET_FAIL_UNREC = Cint(-805)
-const SUNLS_PSOLVE_FAIL_UNREC = Cint(-806)
-const SUNLS_PACKAGE_FAIL_UNREC = Cint(-807)
-const SUNLS_GS_FAIL = Cint(-808)
-const SUNLS_QRSOL_FAIL = Cint(-809)
-const SUNLS_VECTOROP_ERR = Cint(-810)
+const SUNLS_ATIMES_NULL = Cint(-804)
+const SUNLS_ATIMES_FAIL_UNREC = Cint(-805)
+const SUNLS_PSET_FAIL_UNREC = Cint(-806)
+const SUNLS_PSOLVE_NULL = Cint(-807)
+const SUNLS_PSOLVE_FAIL_UNREC = Cint(-808)
+const SUNLS_PACKAGE_FAIL_UNREC = Cint(-809)
+const SUNLS_GS_FAIL = Cint(-810)
+const SUNLS_QRSOL_FAIL = Cint(-811)
+const SUNLS_VECTOROP_ERR = Cint(-812)
 const SUNLS_RES_REDUCED = Cint(801)
 const SUNLS_CONV_FAIL = Cint(802)
 const SUNLS_ATIMES_FAIL_REC = Cint(803)
@@ -676,14 +688,15 @@ const SUNLS_PSOLVE_FAIL_REC = Cint(805)
 const SUNLS_PACKAGE_FAIL_REC = Cint(806)
 const SUNLS_QRFACT_FAIL = Cint(807)
 const SUNLS_LUFACT_FAIL = Cint(808)
+const SUNLS_MSG_RESIDUAL = "\t\tlin. iteration %ld, lin. residual: %g\n"
 
-CEnum.@cenum SUNLinearSolver_Type::UInt32 begin
+@cenum SUNLinearSolver_Type::UInt32 begin
     SUNLINEARSOLVER_DIRECT = 0
     SUNLINEARSOLVER_ITERATIVE = 1
     SUNLINEARSOLVER_MATRIX_ITERATIVE = 2
 end
 
-CEnum.@cenum SUNLinearSolver_ID::UInt32 begin
+@cenum SUNLinearSolver_ID::UInt32 begin
     SUNLINEARSOLVER_BAND = 0
     SUNLINEARSOLVER_DENSE = 1
     SUNLINEARSOLVER_KLU = 2
@@ -699,7 +712,6 @@ CEnum.@cenum SUNLinearSolver_ID::UInt32 begin
     SUNLINEARSOLVER_CUSOLVERSP_BATCHQR = 12
     SUNLINEARSOLVER_CUSTOM = 13
 end
-
 
 
 struct _generic_SUNLinearSolver_Ops
@@ -742,13 +754,13 @@ const SUNMAT_MEM_FAIL = Cint(-702)
 const SUNMAT_OPERATION_FAIL = Cint(-703)
 const SUNMAT_MATVEC_SETUP_REQUIRED = Cint(-704)
 
-
-CEnum.@cenum SUNMatrix_ID::UInt32 begin
+@cenum SUNMatrix_ID::UInt32 begin
     SUNMATRIX_DENSE = 0
     SUNMATRIX_BAND = 1
     SUNMATRIX_SPARSE = 2
     SUNMATRIX_SLUNRLOC = 3
-    SUNMATRIX_CUSTOM = 4
+    SUNMATRIX_CUSPARSE = 4
+    SUNMATRIX_CUSTOM = 5
 end
 
 
@@ -773,10 +785,10 @@ struct _generic_SUNMatrix
 end
 
 const SUNMatrix = Ptr{_generic_SUNMatrix}
-#const MPI_SUNREALTYPE = MPI_DOUBLE
-#const MPI_SUNINDEXTYPE = MPI_INT64_T
-#const PVEC_REAL_MPI_TYPE = MPI_SUNREALTYPE
-#const PVEC_INTEGER_MPI_TYPE = MPI_SUNINDEXTYPE
+# const MPI_SUNREALTYPE = MPI_DOUBLE
+# const MPI_SUNINDEXTYPE = MPI_INT32_T
+# const PVEC_REAL_MPI_TYPE = MPI_SUNREALTYPE
+# const PVEC_INTEGER_MPI_TYPE = MPI_SUNINDEXTYPE
 const SUN_NLS_SUCCESS = Cint(0)
 const SUN_NLS_CONTINUE = Cint(901)
 const SUN_NLS_CONV_RECVR = Cint(902)
@@ -785,6 +797,7 @@ const SUN_NLS_MEM_FAIL = Cint(-902)
 const SUN_NLS_ILL_INPUT = Cint(-903)
 const SUN_NLS_VECTOROP_ERR = Cint(-904)
 const SUN_NLS_EXT_FAIL = Cint(-905)
+const SUN_NLS_MSG_RESIDUAL = "\tnonlin. iteration %ld, nonlin. residual: %g\n"
 
 struct _generic_SUNNonlinearSolver_Ops
     gettype::Ptr{Cvoid}
@@ -815,12 +828,12 @@ const SUNNonlinSolLSetupFn = Ptr{Cvoid}
 const SUNNonlinSolLSolveFn = Ptr{Cvoid}
 const SUNNonlinSolConvTestFn = Ptr{Cvoid}
 
-CEnum.@cenum SUNNonlinearSolver_Type::UInt32 begin
+@cenum SUNNonlinearSolver_Type::UInt32 begin
     SUNNONLINEARSOLVER_ROOTFIND = 0
     SUNNONLINEARSOLVER_FIXEDPOINT = 1
 end
 
-CEnum.@cenum N_Vector_ID::UInt32 begin
+@cenum N_Vector_ID::UInt32 begin
     SUNDIALS_NVEC_SERIAL = 0
     SUNDIALS_NVEC_PARALLEL = 1
     SUNDIALS_NVEC_OPENMP = 2
@@ -867,40 +880,40 @@ const SUNKLU_ORDERING_DEFAULT = Cint(1)
 const SUNKLU_REINIT_FULL = Cint(1)
 const SUNKLU_REINIT_PARTIAL = Cint(2)
 
-struct klu_l_symbolic
+struct klu_symbolic
     symmetry::Cdouble
     est_flops::Cdouble
     lnz::Cdouble
     unz::Cdouble
     Lnz::Ptr{Cdouble}
-    n::Clong
-    nz::Clong
-    P::Ptr{Clong}
-    Q::Ptr{Clong}
-    R::Ptr{Clong}
-    nzoff::Clong
-    nblocks::Clong
-    maxblock::Clong
-    ordering::Clong
-    do_btf::Clong
-    structural_rank::Clong
+    n::Cint
+    nz::Cint
+    P::Ptr{Cint}
+    Q::Ptr{Cint}
+    R::Ptr{Cint}
+    nzoff::Cint
+    nblocks::Cint
+    maxblock::Cint
+    ordering::Cint
+    do_btf::Cint
+    structural_rank::Cint
 end
 
-const sun_klu_symbolic = klu_l_symbolic
+const sun_klu_symbolic = klu_symbolic
 
-struct klu_l_numeric
-    n::Clong
-    nblocks::Clong
-    lnz::Clong
-    unz::Clong
-    max_lnz_block::Clong
-    max_unz_block::Clong
-    Pnum::Ptr{Clong}
-    Pinv::Ptr{Clong}
-    Lip::Ptr{Clong}
-    Uip::Ptr{Clong}
-    Llen::Ptr{Clong}
-    Ulen::Ptr{Clong}
+struct klu_numeric
+    n::Cint
+    nblocks::Cint
+    lnz::Cint
+    unz::Cint
+    max_lnz_block::Cint
+    max_unz_block::Cint
+    Pnum::Ptr{Cint}
+    Pinv::Ptr{Cint}
+    Lip::Ptr{Cint}
+    Uip::Ptr{Cint}
+    Llen::Ptr{Cint}
+    Ulen::Ptr{Cint}
     LUbx::Ptr{Ptr{Cvoid}}
     LUsize::Ptr{Csize_t}
     Udiag::Ptr{Cvoid}
@@ -908,33 +921,33 @@ struct klu_l_numeric
     worksize::Csize_t
     Work::Ptr{Cvoid}
     Xwork::Ptr{Cvoid}
-    Iwork::Ptr{Clong}
-    Offp::Ptr{Clong}
-    Offi::Ptr{Clong}
+    Iwork::Ptr{Cint}
+    Offp::Ptr{Cint}
+    Offi::Ptr{Cint}
     Offx::Ptr{Cvoid}
-    nzoff::Clong
+    nzoff::Cint
 end
 
-const sun_klu_numeric = klu_l_numeric
+const sun_klu_numeric = klu_numeric
 
-struct klu_l_common
+struct klu_common_struct
     tol::Cdouble
     memgrow::Cdouble
     initmem_amd::Cdouble
     initmem::Cdouble
     maxwork::Cdouble
-    btf::Clong
-    ordering::Clong
-    scale::Clong
+    btf::Cint
+    ordering::Cint
+    scale::Cint
     user_order::Ptr{Cvoid}
     user_data::Ptr{Cvoid}
-    halt_if_singular::Clong
-    status::Clong
-    nrealloc::Clong
-    structural_rank::Clong
-    numerical_rank::Clong
-    singular_col::Clong
-    noffdiag::Clong
+    halt_if_singular::Cint
+    status::Cint
+    nrealloc::Cint
+    structural_rank::Cint
+    numerical_rank::Cint
+    singular_col::Cint
+    noffdiag::Cint
     flops::Cdouble
     rcond::Cdouble
     condest::Cdouble
@@ -943,34 +956,34 @@ struct klu_l_common
     memusage::Csize_t
     mempeak::Csize_t
 end
-const sun_klu_common = klu_l_common
 
 # These are function names in klu.h
 
-#const sun_klu_analyze = klu_l_analyze
-#const sun_klu_factor = klu_l_factor
-#const sun_klu_refactor = klu_l_refactor
-#const sun_klu_rcond = klu_l_rcond
-#const sun_klu_condest = klu_l_condest
-#const sun_klu_defaults = klu_l_defaults
-#const sun_klu_free_symbolic = klu_l_free_symbolic
-#const sun_klu_free_numeric = klu_l_free_numeric
+# const klu_common = klu_common_struct
+# const sun_klu_common = klu_common
+# const sun_klu_analyze = klu_analyze
+# const sun_klu_factor = klu_factor
+# const sun_klu_refactor = klu_refactor
+# const sun_klu_rcond = klu_rcond
+# const sun_klu_condest = klu_condest
+# const sun_klu_defaults = klu_defaults
+# const sun_klu_free_symbolic = klu_free_symbolic
+# const sun_klu_free_numeric = klu_free_numeric
 
 const KLUSolveFn = Ptr{Cvoid}
 
 struct _SUNLinearSolverContent_KLU
     last_flag::Cint
     first_factorize::Cint
-    symbolic::Ptr{klu_l_symbolic}
-    numeric::Ptr{klu_l_numeric}
-    common::klu_l_common
+    symbolic::Ptr{klu_symbolic}
+    numeric::Ptr{klu_numeric}
+    common::klu_common
     klu_solver::KLUSolveFn
 end
 
 const SUNLinearSolverContent_KLU = Ptr{_SUNLinearSolverContent_KLU}
-
-#const xgbtrf_f77 = dgbtrf_f77
-#const xgbtrs_f77 = dgbtrs_f77
+const xgbtrf_f77 = dgbtrf_f77
+const xgbtrs_f77 = dgbtrs_f77
 
 struct _SUNLinearSolverContent_LapackBand
     N::sunindextype
@@ -979,8 +992,9 @@ struct _SUNLinearSolverContent_LapackBand
 end
 
 const SUNLinearSolverContent_LapackBand = Ptr{_SUNLinearSolverContent_LapackBand}
-#const xgetrf_f77 = dgetrf_f77
-#const xgetrs_f77 = dgetrs_f77
+
+# const xgetrf_f77 = dgetrf_f77
+# const xgetrs_f77 = dgetrs_f77
 
 struct _SUNLinearSolverContent_LapackDense
     N::sunindextype
@@ -1007,6 +1021,8 @@ struct _SUNLinearSolverContent_PCG
     p::N_Vector
     z::N_Vector
     Ap::N_Vector
+    print_level::Cint
+    info_file::Ptr{FILE}
 end
 
 const SUNLinearSolverContent_PCG = Ptr{_SUNLinearSolverContent_PCG}
@@ -1032,6 +1048,8 @@ struct _SUNLinearSolverContent_SPBCGS
     u::N_Vector
     Ap::N_Vector
     vtemp::N_Vector
+    print_level::Cint
+    info_file::Ptr{FILE}
 end
 
 const SUNLinearSolverContent_SPBCGS = Ptr{_SUNLinearSolverContent_SPBCGS}
@@ -1063,6 +1081,8 @@ struct _SUNLinearSolverContent_SPFGMR
     vtemp::N_Vector
     cv::Ptr{realtype}
     Xv::Ptr{N_Vector}
+    print_level::Cint
+    info_file::Ptr{FILE}
 end
 
 const SUNLinearSolverContent_SPFGMR = Ptr{_SUNLinearSolverContent_SPFGMR}
@@ -1093,6 +1113,8 @@ struct _SUNLinearSolverContent_SPGMR
     vtemp::N_Vector
     cv::Ptr{realtype}
     Xv::Ptr{N_Vector}
+    print_level::Cint
+    info_file::Ptr{FILE}
 end
 
 const SUNLinearSolverContent_SPGMR = Ptr{_SUNLinearSolverContent_SPGMR}
@@ -1121,9 +1143,37 @@ struct _SUNLinearSolverContent_SPTFQMR
     vtemp1::N_Vector
     vtemp2::N_Vector
     vtemp3::N_Vector
+    print_level::Cint
+    info_file::Ptr{FILE}
 end
 
 const SUNLinearSolverContent_SPTFQMR = Ptr{_SUNLinearSolverContent_SPTFQMR}
+const SUNSLUMT_ORDERING_DEFAULT = Cint(3)
+const xgstrs = dgstrs
+const pxgstrf = pdgstrf
+const pxgstrf_init = pdgstrf_init
+const xCreate_Dense_Matrix = dCreate_Dense_Matrix
+const xCreate_CompCol_Matrix = dCreate_CompCol_Matrix
+
+struct _SUNLinearSolverContent_SuperLUMT
+    last_flag::Cint
+    first_factorize::Cint
+    A::Ptr{Cint}
+    AC::Ptr{Cint}
+    L::Ptr{Cint}
+    U::Ptr{Cint}
+    B::Ptr{Cint}
+    Gstat::Ptr{Cint}
+    perm_r::Ptr{sunindextype}
+    perm_c::Ptr{sunindextype}
+    N::sunindextype
+    num_threads::Cint
+    diag_pivot_thresh::realtype
+    ordering::Cint
+    options::Ptr{Cint}
+end
+
+const SUNLinearSolverContent_SuperLUMT = Ptr{_SUNLinearSolverContent_SuperLUMT}
 
 # Skipping MacroDefinition: SM_CONTENT_B ( A ) ( ( SUNMatrixContent_Band ) ( A -> content ) )
 # Skipping MacroDefinition: SM_ROWS_B ( A ) ( SM_CONTENT_B ( A ) -> M )
@@ -1225,6 +1275,8 @@ struct _SUNNonlinearSolverContent_FixedPoint
     niters::Clong
     nconvfails::Clong
     ctest_data::Ptr{Cvoid}
+    print_level::Cint
+    info_file::Ptr{FILE}
 end
 
 const SUNNonlinearSolverContent_FixedPoint = Ptr{_SUNNonlinearSolverContent_FixedPoint}
@@ -1241,6 +1293,146 @@ struct _SUNNonlinearSolverContent_Newton
     niters::Clong
     nconvfails::Clong
     ctest_data::Ptr{Cvoid}
+    print_level::Cint
+    info_file::Ptr{FILE}
 end
 
 const SUNNonlinearSolverContent_Newton = Ptr{_SUNNonlinearSolverContent_Newton}
+
+const KLU_OK = Cint(0)
+const KLU_SINGULAR = Cint(1)
+const KLU_OUT_OF_MEMORY = Cint(-2)
+const KLU_INVALID = Cint(-3)
+const KLU_TOO_LARGE = Cint(-4)
+const KLU_DATE = "Mar 12, 2018"
+
+# Skipping MacroDefinition: KLU_VERSION_CODE ( main , sub ) ( ( main ) * 1000 + ( sub ) )
+
+const KLU_MAIN_VERSION = Cint(1)
+const KLU_SUB_VERSION = Cint(3)
+const KLU_SUBSUB_VERSION = Cint(9)
+
+# Skipping MacroDefinition: KLU_VERSION KLU_VERSION_CODE ( KLU_MAIN_VERSION , KLU_SUB_VERSION )
+
+struct klu_l_symbolic
+    symmetry::Cdouble
+    est_flops::Cdouble
+    lnz::Cdouble
+    unz::Cdouble
+    Lnz::Ptr{Cdouble}
+    n::Clong
+    nz::Clong
+    P::Ptr{Clong}
+    Q::Ptr{Clong}
+    R::Ptr{Clong}
+    nzoff::Clong
+    nblocks::Clong
+    maxblock::Clong
+    ordering::Clong
+    do_btf::Clong
+    structural_rank::Clong
+end
+
+struct klu_l_numeric
+    n::Clong
+    nblocks::Clong
+    lnz::Clong
+    unz::Clong
+    max_lnz_block::Clong
+    max_unz_block::Clong
+    Pnum::Ptr{Clong}
+    Pinv::Ptr{Clong}
+    Lip::Ptr{Clong}
+    Uip::Ptr{Clong}
+    Llen::Ptr{Clong}
+    Ulen::Ptr{Clong}
+    LUbx::Ptr{Ptr{Cvoid}}
+    LUsize::Ptr{Csize_t}
+    Udiag::Ptr{Cvoid}
+    Rs::Ptr{Cdouble}
+    worksize::Csize_t
+    Work::Ptr{Cvoid}
+    Xwork::Ptr{Cvoid}
+    Iwork::Ptr{Clong}
+    Offp::Ptr{Clong}
+    Offi::Ptr{Clong}
+    Offx::Ptr{Cvoid}
+    nzoff::Clong
+end
+
+struct klu_l_common_struct
+    tol::Cdouble
+    memgrow::Cdouble
+    initmem_amd::Cdouble
+    initmem::Cdouble
+    maxwork::Cdouble
+    btf::Clong
+    ordering::Clong
+    scale::Clong
+    user_order::Ptr{Cvoid}
+    user_data::Ptr{Cvoid}
+    halt_if_singular::Clong
+    status::Clong
+    nrealloc::Clong
+    structural_rank::Clong
+    numerical_rank::Clong
+    singular_col::Clong
+    noffdiag::Clong
+    flops::Cdouble
+    rcond::Cdouble
+    condest::Cdouble
+    rgrowth::Cdouble
+    work::Cdouble
+    memusage::Csize_t
+    mempeak::Csize_t
+end
+
+const klu_l_common = klu_l_common_struct
+const COLAMD_DATE = "Oct 10, 2014"
+
+# Skipping MacroDefinition: COLAMD_VERSION_CODE ( main , sub ) ( ( main ) * 1000 + ( sub ) )
+
+const COLAMD_MAIN_VERSION = Cint(2)
+const COLAMD_SUB_VERSION = Cint(9)
+const COLAMD_SUBSUB_VERSION = Cint(1)
+
+# Skipping MacroDefinition: COLAMD_VERSION COLAMD_VERSION_CODE ( COLAMD_MAIN_VERSION , COLAMD_SUB_VERSION )
+
+const COLAMD_KNOBS = Cint(20)
+const COLAMD_STATS = Cint(20)
+const COLAMD_DENSE_ROW = Cint(0)
+const COLAMD_DENSE_COL = Cint(1)
+const COLAMD_AGGRESSIVE = Cint(2)
+const COLAMD_DEFRAG_COUNT = Cint(2)
+const COLAMD_STATUS = Cint(3)
+const COLAMD_INFO1 = Cint(4)
+const COLAMD_INFO2 = Cint(5)
+const COLAMD_INFO3 = Cint(6)
+const COLAMD_OK = Cint(0)
+const COLAMD_OK_BUT_JUMBLED = Cint(1)
+const COLAMD_ERROR_A_not_present = Cint(-1)
+const COLAMD_ERROR_p_not_present = Cint(-2)
+const COLAMD_ERROR_nrow_negative = Cint(-3)
+const COLAMD_ERROR_ncol_negative = Cint(-4)
+const COLAMD_ERROR_nnz_negative = Cint(-5)
+const COLAMD_ERROR_p0_nonzero = Cint(-6)
+const COLAMD_ERROR_A_too_small = Cint(-7)
+const COLAMD_ERROR_col_length_negative = Cint(-8)
+const COLAMD_ERROR_row_index_out_of_bounds = Cint(-9)
+const COLAMD_ERROR_out_of_memory = Cint(-10)
+const COLAMD_ERROR_internal_error = Cint(-999)
+const SUITESPARSE_PRINTF = printf
+
+# Skipping MacroDefinition: SuiteSparse_long long long int
+
+const SuiteSparse_long_max = LONG_MAX
+const SuiteSparse_long_idd = "lld"
+const SuiteSparse_long_id = "%"
+const ID = "%d"
+const Int_MAX = INT_MAX
+const COLAMD_recommended = colamd_recommended
+const COLAMD_set_defaults = colamd_set_defaults
+const COLAMD_MAIN = colamd
+const SYMAMD_MAIN = symamd
+const COLAMD_report = colamd_report
+const SYMAMD_report = symamd_report

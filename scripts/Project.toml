@@ -1,0 +1,5 @@
+[deps]
+Clang = "40e3b903-d033-50b4-a0cc-940c62c95e31"
+SuiteSparse32_jll = "ca45d3f4-326b-53b0-9957-23b75aacb3f2"
+Sundials32_jll = "3d421925-9ddb-5fba-844f-eab55ed40f51"
+SuperLU_MT_jll = "00982de7-9f76-5194-84e1-476c61fcc171"

@@ -6,17 +6,19 @@
 # include(joinpath(Pkg.dir("Sundials"), "src", "wrap_sundials.jl"));
 
 using Clang
-using Sundials_jll
+using Sundials32_jll
+using SuiteSparse32_jll
+using SuperLU_MT_jll
 
 # `outpath` specifies, where the julian wrappers would be generated.
 # If the generated .jl files are ok, they have to be copied to the "src" folder
 # overwriting the old ones
-const outpath = normpath(joinpath(dirname(@__FILE__), "wrapped_api"))
+const outpath = normpath(joinpath(dirname(@__FILE__), "../src/new_API"))
 mkpath(outpath)
 
 # Find all relevant Sundials headers
 #const incpath = normpath(Sundials-5_jll.jl.artifact_dir, "include")
-const incpath = joinpath(Sundials_jll.artifact_dir, "include")
+const incpath = joinpath(Sundials32_jll.artifact_dir, "include")
 if !isdir(incpath)
     error("Sundials C headers not found.")
 end
@@ -45,7 +47,8 @@ end
 @show sundials_headers
 
 const clang_includes = [CLANG_INCLUDE]
-push!(sundials_headers, joinpath(Sundials_jll.SuiteSparse_jll.artifact_dir, "include", "klu.h"))
+push!(sundials_headers, joinpath(SuiteSparse32_jll.artifact_dir, "include", "klu.h"))
+push!(sundials_headers, joinpath(SuperLU_MT_jll.artifact_dir, "include", "colamd.h"))
 
 # check_use_header(path) = true
 # Callback to test if a header should actually be wrapped (for exclusion)
@@ -122,6 +125,7 @@ const linear_solvers_and_matrices = [
     "spfgmr",
     "spgmr",
     "sptfqmr",
+    "superlumt",
     # Matrices
     "sparse",
     #Non linear solvers

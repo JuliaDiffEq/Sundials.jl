@@ -2,50 +2,31 @@
 # Automatically generated using Clang.jl
 
 
-function CVodeCreate(lmm::Cint)
+function CVodeCreate(lmm)
     ccall((:CVodeCreate, libsundials_cvode), CVODEMemPtr, (Cint,), lmm)
 end
 
-function CVodeCreate(lmm)
-    CVodeCreate(convert(Cint, lmm))
-end
-
-function CVodeInit(cvode_mem, f::CVRhsFn, t0::realtype, y0::N_Vector)
+function CVodeInit(cvode_mem, f, t0, y0)
     ccall((:CVodeInit, libsundials_cvode), Cint, (CVODEMemPtr, CVRhsFn, realtype, N_Vector), cvode_mem, f, t0, y0)
 end
 
-function CVodeInit(cvode_mem, f, t0, y0)
-    __y0 = convert(NVector, y0)
-    CVodeInit(cvode_mem, CVRhsFn_wrapper(f), t0, convert(N_Vector, __y0))
-end
-
-function CVodeReInit(cvode_mem, t0::realtype, y0::N_Vector)
+function CVodeReInit(cvode_mem, t0, y0)
     ccall((:CVodeReInit, libsundials_cvode), Cint, (CVODEMemPtr, realtype, N_Vector), cvode_mem, t0, y0)
 end
 
-function CVodeReInit(cvode_mem, t0, y0)
-    __y0 = convert(NVector, y0)
-    CVodeReInit(cvode_mem, t0, convert(N_Vector, __y0))
-end
-
-function CVodeSStolerances(cvode_mem, reltol::realtype, abstol::realtype)
+function CVodeSStolerances(cvode_mem, reltol, abstol)
     ccall((:CVodeSStolerances, libsundials_cvode), Cint, (CVODEMemPtr, realtype, realtype), cvode_mem, reltol, abstol)
 end
 
-function CVodeSVtolerances(cvode_mem, reltol::realtype, abstol::N_Vector)
+function CVodeSVtolerances(cvode_mem, reltol, abstol)
     ccall((:CVodeSVtolerances, libsundials_cvode), Cint, (CVODEMemPtr, realtype, N_Vector), cvode_mem, reltol, abstol)
 end
 
-function CVodeSVtolerances(cvode_mem, reltol, abstol)
-    __abstol = convert(NVector, abstol)
-    CVodeSVtolerances(cvode_mem, reltol, convert(N_Vector, __abstol))
-end
-
-function CVodeWFtolerances(cvode_mem, efun::CVEwtFn)
+function CVodeWFtolerances(cvode_mem, efun)
     ccall((:CVodeWFtolerances, libsundials_cvode), Cint, (CVODEMemPtr, CVEwtFn), cvode_mem, efun)
 end
 
-function CVodeSetErrHandlerFn(cvode_mem, ehfun::CVErrHandlerFn, eh_data)
+function CVodeSetErrHandlerFn(cvode_mem, ehfun, eh_data)
     ccall((:CVodeSetErrHandlerFn, libsundials_cvode), Cint, (CVODEMemPtr, CVErrHandlerFn, Ptr{Cvoid}), cvode_mem, ehfun, eh_data)
 end
 
@@ -57,101 +38,76 @@ function CVodeSetUserData(cvode_mem, user_data)
     ccall((:CVodeSetUserData, libsundials_cvode), Cint, (CVODEMemPtr, Any), cvode_mem, user_data)
 end
 
-function CVodeSetMaxOrd(cvode_mem, maxord::Cint)
-    ccall((:CVodeSetMaxOrd, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, maxord)
+function CVodeSetMonitorFn(cvode_mem, fn)
+    ccall((:CVodeSetMonitorFn, libsundials_cvode), Cint, (CVODEMemPtr, CVMonitorFn), cvode_mem, fn)
+end
+
+function CVodeSetMonitorFrequency(cvode_mem, nst)
+    ccall((:CVodeSetMonitorFrequency, libsundials_cvode), Cint, (CVODEMemPtr, Clong), cvode_mem, nst)
 end
 
 function CVodeSetMaxOrd(cvode_mem, maxord)
-    CVodeSetMaxOrd(cvode_mem, convert(Cint, maxord))
-end
-
-function CVodeSetMaxNumSteps(cvode_mem, mxsteps::Clong)
-    ccall((:CVodeSetMaxNumSteps, libsundials_cvode), Cint, (CVODEMemPtr, Clong), cvode_mem, mxsteps)
+    ccall((:CVodeSetMaxOrd, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, maxord)
 end
 
 function CVodeSetMaxNumSteps(cvode_mem, mxsteps)
-    CVodeSetMaxNumSteps(cvode_mem, convert(Clong, mxsteps))
-end
-
-function CVodeSetMaxHnilWarns(cvode_mem, mxhnil::Clong)
-    ccall((:CVodeSetMaxHnilWarns, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, mxhnil)
+    ccall((:CVodeSetMaxNumSteps, libsundials_cvode), Cint, (CVODEMemPtr, Clong), cvode_mem, mxsteps)
 end
 
 function CVodeSetMaxHnilWarns(cvode_mem, mxhnil)
-    CVodeSetMaxHnilWarns(cvode_mem, convert(Clong, mxhnil))
-end
-
-function CVodeSetStabLimDet(cvode_mem, stldet::Cint)
-    ccall((:CVodeSetStabLimDet, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, stldet)
+    ccall((:CVodeSetMaxHnilWarns, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, mxhnil)
 end
 
 function CVodeSetStabLimDet(cvode_mem, stldet)
-    CVodeSetStabLimDet(cvode_mem, convert(Cint, stldet))
+    ccall((:CVodeSetStabLimDet, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, stldet)
 end
 
-function CVodeSetInitStep(cvode_mem, hin::realtype)
+function CVodeSetInitStep(cvode_mem, hin)
     ccall((:CVodeSetInitStep, libsundials_cvode), Cint, (CVODEMemPtr, realtype), cvode_mem, hin)
 end
 
-function CVodeSetMinStep(cvode_mem, hmin::realtype)
+function CVodeSetMinStep(cvode_mem, hmin)
     ccall((:CVodeSetMinStep, libsundials_cvode), Cint, (CVODEMemPtr, realtype), cvode_mem, hmin)
 end
 
-function CVodeSetMaxStep(cvode_mem, hmax::realtype)
+function CVodeSetMaxStep(cvode_mem, hmax)
     ccall((:CVodeSetMaxStep, libsundials_cvode), Cint, (CVODEMemPtr, realtype), cvode_mem, hmax)
 end
 
-function CVodeSetStopTime(cvode_mem, tstop::realtype)
+function CVodeSetStopTime(cvode_mem, tstop)
     ccall((:CVodeSetStopTime, libsundials_cvode), Cint, (CVODEMemPtr, realtype), cvode_mem, tstop)
 end
 
-function CVodeSetMaxErrTestFails(cvode_mem, maxnef::Cint)
+function CVodeSetMaxErrTestFails(cvode_mem, maxnef)
     ccall((:CVodeSetMaxErrTestFails, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, maxnef)
 end
 
-function CVodeSetMaxErrTestFails(cvode_mem, maxnef)
-    CVodeSetMaxErrTestFails(cvode_mem, convert(Cint, maxnef))
-end
-
-function CVodeSetMaxNonlinIters(cvode_mem, maxcor::Cint)
+function CVodeSetMaxNonlinIters(cvode_mem, maxcor)
     ccall((:CVodeSetMaxNonlinIters, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, maxcor)
 end
 
-function CVodeSetMaxNonlinIters(cvode_mem, maxcor)
-    CVodeSetMaxNonlinIters(cvode_mem, convert(Cint, maxcor))
-end
-
-function CVodeSetMaxConvFails(cvode_mem, maxncf::Cint)
+function CVodeSetMaxConvFails(cvode_mem, maxncf)
     ccall((:CVodeSetMaxConvFails, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, maxncf)
 end
 
-function CVodeSetMaxConvFails(cvode_mem, maxncf)
-    CVodeSetMaxConvFails(cvode_mem, convert(Cint, maxncf))
-end
-
-function CVodeSetNonlinConvCoef(cvode_mem, nlscoef::realtype)
+function CVodeSetNonlinConvCoef(cvode_mem, nlscoef)
     ccall((:CVodeSetNonlinConvCoef, libsundials_cvode), Cint, (CVODEMemPtr, realtype), cvode_mem, nlscoef)
 end
 
-function CVodeSetConstraints(cvode_mem, constraints::N_Vector)
+function CVodeSetConstraints(cvode_mem, constraints)
     ccall((:CVodeSetConstraints, libsundials_cvode), Cint, (CVODEMemPtr, N_Vector), cvode_mem, constraints)
 end
 
-function CVodeSetConstraints(cvode_mem, constraints)
-    __constraints = convert(NVector, constraints)
-    CVodeSetConstraints(cvode_mem, convert(N_Vector, __constraints))
-end
-
-function CVodeSetNonlinearSolver(cvode_mem, NLS::SUNNonlinearSolver)
+function CVodeSetNonlinearSolver(cvode_mem, NLS)
     ccall((:CVodeSetNonlinearSolver, libsundials_cvode), Cint, (CVODEMemPtr, SUNNonlinearSolver), cvode_mem, NLS)
 end
 
-function CVodeRootInit(cvode_mem, nrtfn::Cint, g::CVRootFn)
-    ccall((:CVodeRootInit, libsundials_cvode), Cint, (CVODEMemPtr, Cint, CVRootFn), cvode_mem, nrtfn, g)
+function CVodeSetUseIntegratorFusedKernels(cvode_mem, onoff)
+    ccall((:CVodeSetUseIntegratorFusedKernels, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, onoff)
 end
 
 function CVodeRootInit(cvode_mem, nrtfn, g)
-    CVodeRootInit(cvode_mem, convert(Cint, nrtfn), CVRootFn_wrapper(g))
+    ccall((:CVodeRootInit, libsundials_cvode), Cint, (CVODEMemPtr, Cint, CVRootFn), cvode_mem, nrtfn, g)
 end
 
 function CVodeSetRootDirection(cvode_mem, rootdir)
@@ -162,22 +118,12 @@ function CVodeSetNoInactiveRootWarn(cvode_mem)
     ccall((:CVodeSetNoInactiveRootWarn, libsundials_cvode), Cint, (CVODEMemPtr,), cvode_mem)
 end
 
-function CVode(cvode_mem, tout::realtype, yout::N_Vector, tret, itask::Cint)
+function CVode(cvode_mem, tout, yout, tret, itask)
     ccall((:CVode, libsundials_cvode), Cint, (CVODEMemPtr, realtype, N_Vector, Ptr{realtype}, Cint), cvode_mem, tout, yout, tret, itask)
 end
 
-function CVode(cvode_mem, tout, yout::N_Vector, tret, itask)
-    __yout = convert(NVector, yout)
-    CVode(cvode_mem, tout, convert(N_Vector, __yout), tret, convert(Cint, itask))
-end
-
-function CVodeGetDky(cvode_mem, t::realtype, k::Cint, dky::N_Vector)
-    ccall((:CVodeGetDky, libsundials_cvode), Cint, (CVODEMemPtr, realtype, Cint, N_Vector), cvode_mem, t, k, dky)
-end
-
 function CVodeGetDky(cvode_mem, t, k, dky)
-    __dky = convert(NVector, dky)
-    CVodeGetDky(cvode_mem, t, convert(Cint, k), convert(N_Vector, __dky))
+    ccall((:CVodeGetDky, libsundials_cvode), Cint, (CVODEMemPtr, realtype, Cint, N_Vector), cvode_mem, t, k, dky)
 end
 
 function CVodeGetWorkSpace(cvode_mem, lenrw, leniw)
@@ -240,22 +186,12 @@ function CVodeGetTolScaleFactor(cvode_mem, tolsfac)
     ccall((:CVodeGetTolScaleFactor, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{realtype}), cvode_mem, tolsfac)
 end
 
-function CVodeGetErrWeights(cvode_mem, eweight::N_Vector)
+function CVodeGetErrWeights(cvode_mem, eweight)
     ccall((:CVodeGetErrWeights, libsundials_cvode), Cint, (CVODEMemPtr, N_Vector), cvode_mem, eweight)
 end
 
-function CVodeGetErrWeights(cvode_mem, eweight::N_Vector)
-    __eweight = convert(NVector, eweight)
-    CVodeGetErrWeights(cvode_mem, convert(N_Vector, __eweight))
-end
-
-function CVodeGetEstLocalErrors(cvode_mem, ele::N_Vector)
-    ccall((:CVodeGetEstLocalErrors, libsundials_cvode), Cint, (CVODEMemPtr, N_Vector), cvode_mem, ele)
-end
-
 function CVodeGetEstLocalErrors(cvode_mem, ele)
-    __ele = convert(NVector, ele)
-    CVodeGetEstLocalErrors(cvode_mem, convert(N_Vector, __ele))
+    ccall((:CVodeGetEstLocalErrors, libsundials_cvode), Cint, (CVODEMemPtr, N_Vector), cvode_mem, ele)
 end
 
 function CVodeGetNumGEvals(cvode_mem, ngevals)
@@ -282,22 +218,22 @@ function CVodeGetNonlinSolvStats(cvode_mem, nniters, nncfails)
     ccall((:CVodeGetNonlinSolvStats, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}), cvode_mem, nniters, nncfails)
 end
 
-function CVodeGetReturnFlagName(flag::Clong)
-    ccall((:CVodeGetReturnFlagName, libsundials_cvode), Cstring, (Clong,), flag)
-end
-
 function CVodeGetReturnFlagName(flag)
-    CVodeGetReturnFlagName(convert(Clong, flag))
+    ccall((:CVodeGetReturnFlagName, libsundials_cvode), Cstring, (Clong,), flag)
 end
 
 function CVodeFree(cvode_mem)
     ccall((:CVodeFree, libsundials_cvode), Cvoid, (Ref{CVODEMemPtr},), cvode_mem)
 end
+
+function CVodeSetJacTimesRhsFn(cvode_mem, jtimesRhsFn)
+    ccall((:CVodeSetJacTimesRhsFn, libsundials_cvode), Cint, (CVODEMemPtr, CVRhsFn), cvode_mem, jtimesRhsFn)
+end
 # Julia wrapper for header: cvode_bandpre.h
 # Automatically generated using Clang.jl
 
 
-function CVBandPrecInit(cvode_mem, N::sunindextype, mu::sunindextype, ml::sunindextype)
+function CVBandPrecInit(cvode_mem, N, mu, ml)
     ccall((:CVBandPrecInit, libsundials_cvode), Cint, (CVODEMemPtr, sunindextype, sunindextype, sunindextype), cvode_mem, N, mu, ml)
 end
 
@@ -312,11 +248,11 @@ end
 # Automatically generated using Clang.jl
 
 
-function CVBBDPrecInit(cvode_mem, Nlocal::sunindextype, mudq::sunindextype, mldq::sunindextype, mukeep::sunindextype, mlkeep::sunindextype, dqrely::realtype, gloc::CVLocalFn, cfn::CVCommFn)
+function CVBBDPrecInit(cvode_mem, Nlocal, mudq, mldq, mukeep, mlkeep, dqrely, gloc, cfn)
     ccall((:CVBBDPrecInit, libsundials_cvode), Cint, (CVODEMemPtr, sunindextype, sunindextype, sunindextype, sunindextype, sunindextype, realtype, CVLocalFn, CVCommFn), cvode_mem, Nlocal, mudq, mldq, mukeep, mlkeep, dqrely, gloc, cfn)
 end
 
-function CVBBDPrecReInit(cvode_mem, mudq::sunindextype, mldq::sunindextype, dqrely::realtype)
+function CVBBDPrecReInit(cvode_mem, mudq, mldq, dqrely)
     ccall((:CVBBDPrecReInit, libsundials_cvode), Cint, (CVODEMemPtr, sunindextype, sunindextype, realtype), cvode_mem, mudq, mldq, dqrely)
 end
 
@@ -347,22 +283,18 @@ function CVDiagGetLastFlag(cvode_mem, flag)
     ccall((:CVDiagGetLastFlag, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, flag)
 end
 
-function CVDiagGetReturnFlagName(flag::Clong)
-    ccall((:CVDiagGetReturnFlagName, libsundials_cvode), Cstring, (Clong,), flag)
-end
-
 function CVDiagGetReturnFlagName(flag)
-    CVDiagGetReturnFlagName(convert(Clong, flag))
+    ccall((:CVDiagGetReturnFlagName, libsundials_cvode), Cstring, (Clong,), flag)
 end
 # Julia wrapper for header: cvode_direct.h
 # Automatically generated using Clang.jl
 
 
-function CVDlsSetLinearSolver(cvode_mem, LS::SUNLinearSolver, A::SUNMatrix)
+function CVDlsSetLinearSolver(cvode_mem, LS, A)
     ccall((:CVDlsSetLinearSolver, libsundials_cvode), Cint, (CVODEMemPtr, SUNLinearSolver, SUNMatrix), cvode_mem, LS, A)
 end
 
-function CVDlsSetJacFn(cvode_mem, jac::CVDlsJacFn)
+function CVDlsSetJacFn(cvode_mem, jac)
     ccall((:CVDlsSetJacFn, libsundials_cvode), Cint, (CVODEMemPtr, CVDlsJacFn), cvode_mem, jac)
 end
 
@@ -382,46 +314,42 @@ function CVDlsGetLastFlag(cvode_mem, flag)
     ccall((:CVDlsGetLastFlag, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, flag)
 end
 
-function CVDlsGetReturnFlagName(flag::Clong)
-    ccall((:CVDlsGetReturnFlagName, libsundials_cvode), Cstring, (Clong,), flag)
-end
-
 function CVDlsGetReturnFlagName(flag)
-    CVDlsGetReturnFlagName(convert(Clong, flag))
+    ccall((:CVDlsGetReturnFlagName, libsundials_cvode), Cstring, (Clong,), flag)
 end
 # Julia wrapper for header: cvode_ls.h
 # Automatically generated using Clang.jl
 
 
-function CVodeSetLinearSolver(cvode_mem, LS::SUNLinearSolver, A::SUNMatrix)
+function CVodeSetLinearSolver(cvode_mem, LS, A)
     ccall((:CVodeSetLinearSolver, libsundials_cvode), Cint, (CVODEMemPtr, SUNLinearSolver, SUNMatrix), cvode_mem, LS, A)
 end
 
-function CVodeSetJacFn(cvode_mem, jac::CVLsJacFn)
+function CVodeSetJacFn(cvode_mem, jac)
     ccall((:CVodeSetJacFn, libsundials_cvode), Cint, (CVODEMemPtr, CVLsJacFn), cvode_mem, jac)
 end
 
-function CVodeSetMaxStepsBetweenJac(cvode_mem, msbj::Clong)
+function CVodeSetMaxStepsBetweenJac(cvode_mem, msbj)
     ccall((:CVodeSetMaxStepsBetweenJac, libsundials_cvode), Cint, (CVODEMemPtr, Clong), cvode_mem, msbj)
 end
 
-function CVodeSetMaxStepsBetweenJac(cvode_mem, msbj)
-    CVodeSetMaxStepsBetweenJac(cvode_mem, convert(Clong, msbj))
+function CVodeSetLinearSolutionScaling(cvode_mem, onoff)
+    ccall((:CVodeSetLinearSolutionScaling, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, onoff)
 end
 
-function CVodeSetEpsLin(cvode_mem, eplifac::realtype)
+function CVodeSetEpsLin(cvode_mem, eplifac)
     ccall((:CVodeSetEpsLin, libsundials_cvode), Cint, (CVODEMemPtr, realtype), cvode_mem, eplifac)
 end
 
-function CVodeSetPreconditioner(cvode_mem, pset::CVLsPrecSetupFn, psolve::CVLsPrecSolveFn)
+function CVodeSetPreconditioner(cvode_mem, pset, psolve)
     ccall((:CVodeSetPreconditioner, libsundials_cvode), Cint, (CVODEMemPtr, CVLsPrecSetupFn, CVLsPrecSolveFn), cvode_mem, pset, psolve)
 end
 
-function CVodeSetJacTimes(cvode_mem, jtsetup::CVLsJacTimesSetupFn, jtimes::CVLsJacTimesVecFn)
+function CVodeSetJacTimes(cvode_mem, jtsetup, jtimes)
     ccall((:CVodeSetJacTimes, libsundials_cvode), Cint, (CVODEMemPtr, CVLsJacTimesSetupFn, CVLsJacTimesVecFn), cvode_mem, jtsetup, jtimes)
 end
 
-function CVodeSetLinSysFn(cvode_mem, linsys::CVLsLinSysFn)
+function CVodeSetLinSysFn(cvode_mem, linsys)
     ccall((:CVodeSetLinSysFn, libsundials_cvode), Cint, (CVODEMemPtr, CVLsLinSysFn), cvode_mem, linsys)
 end
 
@@ -461,34 +389,69 @@ function CVodeGetNumLinRhsEvals(cvode_mem, nfevalsLS)
     ccall((:CVodeGetNumLinRhsEvals, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nfevalsLS)
 end
 
+function CVodeGetLinSolveStats(cvode_mem, njevals, nfevalsLS, nliters, nlcfails, npevals, npsolves, njtsetups, njtimes)
+    ccall((:CVodeGetLinSolveStats, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}, Ptr{Clong}), cvode_mem, njevals, nfevalsLS, nliters, nlcfails, npevals, npsolves, njtsetups, njtimes)
+end
+
 function CVodeGetLastLinFlag(cvode_mem, flag)
     ccall((:CVodeGetLastLinFlag, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, flag)
 end
 
-function CVodeGetLinReturnFlagName(flag::Clong)
+function CVodeGetLinReturnFlagName(flag)
     ccall((:CVodeGetLinReturnFlagName, libsundials_cvode), Cstring, (Clong,), flag)
 end
+# Julia wrapper for header: cvode_proj.h
+# Automatically generated using Clang.jl
 
-function CVodeGetLinReturnFlagName(flag)
-    CVodeGetLinReturnFlagName(convert(Cint, flag))
+
+function CVodeSetProjFn(cvode_mem, pfun)
+    ccall((:CVodeSetProjFn, libsundials_cvode), Cint, (CVODEMemPtr, CVProjFn), cvode_mem, pfun)
+end
+
+function CVodeSetProjErrEst(cvode_mem, onoff)
+    ccall((:CVodeSetProjErrEst, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, onoff)
+end
+
+function CVodeSetProjFrequency(cvode_mem, proj_freq)
+    ccall((:CVodeSetProjFrequency, libsundials_cvode), Cint, (CVODEMemPtr, Clong), cvode_mem, proj_freq)
+end
+
+function CVodeSetMaxNumProjFails(cvode_mem, max_fails)
+    ccall((:CVodeSetMaxNumProjFails, libsundials_cvode), Cint, (CVODEMemPtr, Cint), cvode_mem, max_fails)
+end
+
+function CVodeSetEpsProj(cvode_mem, eps)
+    ccall((:CVodeSetEpsProj, libsundials_cvode), Cint, (CVODEMemPtr, realtype), cvode_mem, eps)
+end
+
+function CVodeSetProjFailEta(cvode_mem, eta)
+    ccall((:CVodeSetProjFailEta, libsundials_cvode), Cint, (CVODEMemPtr, realtype), cvode_mem, eta)
+end
+
+function CVodeGetNumProjEvals(cvode_mem, nproj)
+    ccall((:CVodeGetNumProjEvals, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nproj)
+end
+
+function CVodeGetNumProjFails(cvode_mem, nprf)
+    ccall((:CVodeGetNumProjFails, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, nprf)
 end
 # Julia wrapper for header: cvode_spils.h
 # Automatically generated using Clang.jl
 
 
-function CVSpilsSetLinearSolver(cvode_mem, LS::SUNLinearSolver)
+function CVSpilsSetLinearSolver(cvode_mem, LS)
     ccall((:CVSpilsSetLinearSolver, libsundials_cvode), Cint, (CVODEMemPtr, SUNLinearSolver), cvode_mem, LS)
 end
 
-function CVSpilsSetEpsLin(cvode_mem, eplifac::realtype)
+function CVSpilsSetEpsLin(cvode_mem, eplifac)
     ccall((:CVSpilsSetEpsLin, libsundials_cvode), Cint, (CVODEMemPtr, realtype), cvode_mem, eplifac)
 end
 
-function CVSpilsSetPreconditioner(cvode_mem, pset::CVSpilsPrecSetupFn, psolve::CVSpilsPrecSolveFn)
+function CVSpilsSetPreconditioner(cvode_mem, pset, psolve)
     ccall((:CVSpilsSetPreconditioner, libsundials_cvode), Cint, (CVODEMemPtr, CVSpilsPrecSetupFn, CVSpilsPrecSolveFn), cvode_mem, pset, psolve)
 end
 
-function CVSpilsSetJacTimes(cvode_mem, jtsetup::CVSpilsJacTimesSetupFn, jtimes::CVSpilsJacTimesVecFn)
+function CVSpilsSetJacTimes(cvode_mem, jtsetup, jtimes)
     ccall((:CVSpilsSetJacTimes, libsundials_cvode), Cint, (CVODEMemPtr, CVSpilsJacTimesSetupFn, CVSpilsJacTimesVecFn), cvode_mem, jtsetup, jtimes)
 end
 
@@ -528,10 +491,6 @@ function CVSpilsGetLastFlag(cvode_mem, flag)
     ccall((:CVSpilsGetLastFlag, libsundials_cvode), Cint, (CVODEMemPtr, Ptr{Clong}), cvode_mem, flag)
 end
 
-function CVSpilsGetReturnFlagName(flag::Clong)
-    ccall((:CVSpilsGetReturnFlagName, libsundials_cvode), Cstring, (Clong,), flag)
-end
-
 function CVSpilsGetReturnFlagName(flag)
-    CVSpilsGetReturnFlagName(convert(Clong, flag))
+    ccall((:CVSpilsGetReturnFlagName, libsundials_cvode), Cstring, (Clong,), flag)
 end
